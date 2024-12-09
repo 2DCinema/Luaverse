@@ -1,10 +1,10 @@
-package io.github.ddcinema.luaverse.system_interaction
+package io.github.cinema2d.luaverse.system_interaction
 
 import java.io.File
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-import io.github.ddcinema.luaverse.Settings
+import io.github.cinema2d.luaverse.Settings
 
 class PathEnvironment {
     private var envVariables: List<String> = System.getenv("Path").split(";")

@@ -1,4 +1,4 @@
-package io.github.ddcinema.luaverse
+package io.github.cinema2d.luaverse
 
 import java.nio.file.Files
 import java.nio.file.Path

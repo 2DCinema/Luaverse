@@ -1,6 +1,4 @@
-package io.github.ddcinema.luaverse
-
-import io.github.ddcinema.luaverse.system_interaction.PathEnvironment
+package io.github.cinema2d.luaverse
 
 fun main() {
     println("Luaverse : Lua version manager for Windows systems.")

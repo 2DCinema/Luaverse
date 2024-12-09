@@ -1,4 +1,4 @@
-package io.github.ddcinema.luaverse.system_interaction
+package io.github.cinema2d.luaverse.system_interaction
 
 import java.io.File
 

@@ -1,5 +1,5 @@
 # Luaverse
-A tool for building and managing Lua on Windows.
+A tool for building and managing Lua on Windows. Currently, a very early work in progress.
 
 ## Requirements
 [TDM-GCC](https://github.com/jmeubank/tdm-gcc) (>v10.3.0)

@@ -1,6 +1,6 @@
-package io.github.ddcinema.luaverse
+package io.github.cinema2d.luaverse
 
-import io.github.ddcinema.luaverse.system_interaction.LuaSource
+import io.github.cinema2d.luaverse.system_interaction.LuaSource
 
 class Command(command: Array<String>) {
     // Map commands here.
