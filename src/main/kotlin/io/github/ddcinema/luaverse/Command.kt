@@ -6,7 +6,8 @@ class Command(command: Array<String>) {
     // Map commands here.
     private val commands = mapOf(
         "help" to ::helpCommand,
-        "build" to ::buildCommand
+        "build" to ::buildCommand,
+        "list" to ::listDirCommand
     )
 
     init {
@@ -23,6 +24,13 @@ class Command(command: Array<String>) {
             println("Unknown command: $command")
 
         }
+    }
+
+    private fun invalidateCommand(command: Array<String>): Boolean {
+        println("${command.joinToString(separator = " ")} is not a valid command.")
+        // Always returns false so that it may be called functionally, if desired.
+        return false
+
     }
 
     // Build commands below here.
@@ -75,6 +83,30 @@ class Command(command: Array<String>) {
         }
 
         return result
+
+    }
+
+    private fun listDirCommand(command: Array<String>): Boolean {
+        // Alternatively, this next line can be commented out and the command will ignore any commands after the first
+        // one. So long as the first one is "list".
+        if (command.size > 1) return invalidateCommand(command)
+
+        println("\n")
+        println("[[[DIRECTORY LISTING]]]")
+        println("\n")
+
+        for ((dirName, dirInfo) in Settings.directories) {
+            println(dirName)
+            println(dirInfo[0])
+            println(dirInfo[1])
+            println("\n")
+
+        }
+
+        println("[[[END OF LISTING]]]")
+        println("\n")
+
+        return true
 
     }
 }
