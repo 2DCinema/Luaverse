@@ -12,12 +12,12 @@ object Settings {
     // the directory, and [1] the directory itself, as a String.
     // TODO: Make this variable private?
     var directories: Map<String, List<String>> = mapOf(
-        "Build Directory" to mutableListOf(
+        "build" to mutableListOf(
             "The directory where Lua is built to.",
             "$appDataPath\\Local\\Programs\\Lua"
         ),
 
-        "Backup Directory" to mutableListOf(
+        "backup" to mutableListOf(
             "The directory where backups of the Path environment variable are stored.",
             "$appDataPath\\Roaming\\Luaverse\\Backups"
         )

@@ -9,16 +9,13 @@ import io.github.cinema2d.luaverse.Settings
 class PathEnvironment {
     private var envVariables: List<String> = System.getenv("Path").split(";")
 
-    init {
-        backup()
-    }
-
     /**
      * Creates a backup of the current Path system environment variable and stores it in a JSON file.
      * This works as a fail-safe in case something goes wrong so that a user can revert any unwanted changes.
+     * Ideally, this function should be run before any changes are made.
      */
-    private fun backup() {
-        val file: File = File("${Settings.directories["Backup Directory"]?.get(1)}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
+     fun backup() {
+        val file: File = File("${Settings.directories["backup"]?.get(1)}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
         val prettyJson: Json = Json{prettyPrint = true}
         file.writeText(prettyJson.encodeToString(envVariables))
 
@@ -29,10 +26,13 @@ class PathEnvironment {
     /**
      * Restores a backup created by backup().
      */
-    private fun restore() {
-
-
-    }
+//    private fun restore(file) {
+//        // Extra backup, in case someone restores the wrong file.
+//        backup()
+//
+//
+//
+//    }
 
     /**
      * Attempts to find the specified version of Lua in the Path environment variable.

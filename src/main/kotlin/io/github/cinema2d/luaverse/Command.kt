@@ -1,31 +1,37 @@
+/*
+    Currently, all commands return "true" or "false" based on if their execution was successful or not. Currently, the
+    value returned is unused, but I am implementing it in case it is needed in the future.
+ */
+
 package io.github.cinema2d.luaverse
 
+import java.awt.Desktop
+import java.io.File
+
 import io.github.cinema2d.luaverse.system_interaction.LuaSource
+import io.github.cinema2d.luaverse.system_interaction.PathEnvironment
 
 class Command(command: Array<String>) {
     // Map commands here.
+    /*
+        TODO: Possible commands to consider.
+            Some sort of command to list off the versions currently installed. Maybe one single list command that can be
+            used to list of directories as well?
+     */
     private val commands = mapOf(
         "help" to ::helpCommand,
+        "backup" to ::backupCommand,
         "build" to ::buildCommand,
-        "list" to ::listDirCommand
+        "dir" to ::dirCommand
     )
 
-    init {
-        val commandAction = commands[command[0].lowercase()]
+    init { commands[command[0].lowercase()]?.invoke(command) ?: invalidateCommand(command) }
 
-        if (commandAction != null) {
-            if (!commandAction(command)) {
-                // TODO: Improve this. This should only be temporary while the commands are fleshed out.
-                println("Unknown error.")
-
-            }
-
-        } else {
-            println("Unknown command: $command")
-
-        }
-    }
-
+    /**
+     * Designed to be called whenever any command cannot be completed.
+     * @param[command] An array containing each command argument.
+     * @return false
+     */
     private fun invalidateCommand(command: Array<String>): Boolean {
         println("${command.joinToString(separator = " ")} is not a valid command.")
         // Always returns false so that it may be called functionally, if desired.
@@ -33,7 +39,11 @@ class Command(command: Array<String>) {
 
     }
 
-    // Build commands below here.
+    /**
+     * Provides a list of commands.
+     * @param[command] An array containing each command argument.
+     * @return If the command was executed successfully or not.
+     */
     private fun helpCommand(command: Array<String>): Boolean {
         try {
             command[1]
@@ -53,32 +63,43 @@ class Command(command: Array<String>) {
 
     }
 
+    /**
+     * Manually creates a backup of the current Path environment variables.
+     * @param[command] An array containing each command argument.
+     * @return If the command was executed successfully or not.
+     */
+    private fun backupCommand(command: Array<String>): Boolean {
+        if (command.size > 1) return invalidateCommand(command)
+
+        PathEnvironment().backup()
+        return true
+
+    }
+
+    /**
+     * Builds Lua to the build directory.
+     * @param[command] An array containing each command argument.
+     * @return If the command was executed successfully or not.
+     */
     private fun buildCommand(command: Array<String>): Boolean {
         var result: Boolean = false
 
-        fun build(path: String): Boolean {
-            val file: LuaSource = LuaSource(path)
-            return file.build()
-
-        }
-
-        // IntelliJ keeps suggestion to "simplify this comparison" by removing the statement altogether. However, this
-        // is extremely counterintuitive.
-        if (command[1] != null) {
-            result = build(command[1])
-
-        // In case one doesn't include the path as the second argument when they invoke the build command, we will give
-        // them another chance to specify it.
-        } else {
-            while (true) {
+        when (command.size) {
+            // In case one doesn't include the path as the second argument when they invoke the build command, we will give
+            // them another chance to specify it.
+            1 -> {
                 println("Please specify the path to the Lua source code. \"Makefile\" should be present in the directory.")
-                val input: String? = readlnOrNull()
 
-                if (input != null) {
-                    result = build(input)
-                    break
+            }
 
-                }
+            2 -> {
+                result = LuaSource(command[1]).build()
+
+            }
+
+            else -> {
+                result = invalidateCommand(command)
+
             }
         }
 
@@ -86,27 +107,59 @@ class Command(command: Array<String>) {
 
     }
 
-    private fun listDirCommand(command: Array<String>): Boolean {
-        // Alternatively, this next line can be commented out and the command will ignore any commands after the first
-        // one. So long as the first one is "list".
-        if (command.size > 1) return invalidateCommand(command)
+    /**
+     * Lists of the current directories and a description of each.
+     * @param[command] An array containing each command argument.
+     * @return If the command was executed successfully or not.
+     */
+    private fun dirCommand(command: Array<String>): Boolean {
+        var result: Boolean = false
 
-        println("\n")
-        println("[[[DIRECTORY LISTING]]]")
-        println("\n")
+        when (command.size) {
+            // If the command is simply "dir", the program will list every directory used.
+            1 -> {
+                println("\n")
+                println("[[[DIRECTORY LISTING]]]")
+                println("You can open any of the following directories by typing in \"dir <name>\".`")
+                println("\n")
 
-        for ((dirName, dirInfo) in Settings.directories) {
-            println(dirName)
-            println(dirInfo[0])
-            println(dirInfo[1])
-            println("\n")
+                for ((dirName, dirInfo) in Settings.directories) {
+                    println(dirName)
+                    println(dirInfo[0])
+                    println(dirInfo[1])
+                    println("\n")
 
+                }
+
+                println("[[[END OF LISTING]]]")
+                println("\n")
+
+                result = true
+
+            }
+
+            // Optionally, the user can specify a directory name after dir, and we'll open that directory as a convenience.
+            2 -> {
+                for ((dirName, dirInfo) in Settings.directories) {
+                    if (command[1] == dirName.lowercase()) {
+                        val directory = File(dirInfo[1])
+
+                        if (directory.exists() && directory.isDirectory) {
+                            Desktop.getDesktop().open(directory)
+                            result = true
+
+                        }
+                    }
+                }
+            }
+
+            else -> {
+                result = invalidateCommand(command)
+
+            }
         }
 
-        println("[[[END OF LISTING]]]")
-        println("\n")
-
-        return true
+        return result
 
     }
 }

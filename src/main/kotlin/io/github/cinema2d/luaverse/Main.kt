@@ -4,8 +4,6 @@ fun main() {
     println("Luaverse : Lua version manager for Windows systems.")
     println("Say \"help\" for a list of commands.")
 
-    //PathEnvironment()
-
     // Main loop
     while (true) {
         val input: String? = readlnOrNull()
