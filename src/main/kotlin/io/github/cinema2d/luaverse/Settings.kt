@@ -26,7 +26,6 @@ object Settings {
     init {
         for ((_, path) in directories) {
             validateDirectory(Paths.get(path[1]))
-
         }
     }
 
@@ -42,10 +41,8 @@ object Settings {
         if (!result) {
             Files.createDirectories(directory)
             result = directory.isDirectory()
-
         }
 
         return result
-
     }
 }

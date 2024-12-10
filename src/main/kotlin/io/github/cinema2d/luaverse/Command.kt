@@ -10,6 +10,7 @@ import java.io.File
 
 import io.github.cinema2d.luaverse.system_interaction.LuaSource
 import io.github.cinema2d.luaverse.system_interaction.PathEnvironment
+import kotlin.io.path.Path
 
 class Command(command: Array<String>) {
     // Map commands here.
@@ -18,14 +19,15 @@ class Command(command: Array<String>) {
             Some sort of command to list off the versions currently installed. Maybe one single list command that can be
             used to list of directories as well?
      */
-    private val commands = mapOf(
+    private val rootCommands = mapOf(
         "help" to ::helpCommand,
         "backup" to ::backupCommand,
+        "restore" to ::restoreCommand,
         "build" to ::buildCommand,
         "dir" to ::dirCommand
     )
 
-    init { commands[command[0].lowercase()]?.invoke(command) ?: invalidateCommand(command) }
+    init { rootCommands[command[0].lowercase()]?.invoke(command) ?: invalidateCommand(command) }
 
     /**
      * Designed to be called whenever any command cannot be completed.
@@ -36,7 +38,6 @@ class Command(command: Array<String>) {
         println("${command.joinToString(separator = " ")} is not a valid command.")
         // Always returns false so that it may be called functionally, if desired.
         return false
-
     }
 
     /**
@@ -47,20 +48,17 @@ class Command(command: Array<String>) {
     private fun helpCommand(command: Array<String>): Boolean {
         try {
             command[1]
-
             // Eventually, I want to have more detailed information on each command, so that one could say "help build",
             // and it would show them how to use that command.
 
         } catch (e: ArrayIndexOutOfBoundsException) {
             println("Supported commands:")
-            for ((name, _) in commands) {
+            for ((name, _) in rootCommands) {
                 println("  - $name")
-
             }
         }
 
         return true
-
     }
 
     /**
@@ -70,10 +68,20 @@ class Command(command: Array<String>) {
      */
     private fun backupCommand(command: Array<String>): Boolean {
         if (command.size > 1) return invalidateCommand(command)
+        return PathEnvironment().backup()
+    }
 
-        PathEnvironment().backup()
-        return true
+    private fun restoreCommand(command: Array<String>): Boolean {
+        when (command.size) {
+            1 -> {
+                println("Please specify the path to the backup. Backups can be found by invoking the \"dir backup\" " +
+                        "command or navigating to ${Settings.directories["backup"]?.get(1)}.")
+                return false
+            }
 
+            2 -> return PathEnvironment().restore(command[1])
+            else -> return invalidateCommand(command)
+        }
     }
 
     /**
@@ -89,22 +97,18 @@ class Command(command: Array<String>) {
             // them another chance to specify it.
             1 -> {
                 println("Please specify the path to the Lua source code. \"Makefile\" should be present in the directory.")
-
             }
 
             2 -> {
                 result = LuaSource(command[1]).build()
-
             }
 
             else -> {
                 result = invalidateCommand(command)
-
             }
         }
 
         return result
-
     }
 
     /**
@@ -128,14 +132,12 @@ class Command(command: Array<String>) {
                     println(dirInfo[0])
                     println(dirInfo[1])
                     println("\n")
-
                 }
 
                 println("[[[END OF LISTING]]]")
                 println("\n")
 
                 result = true
-
             }
 
             // Optionally, the user can specify a directory name after dir, and we'll open that directory as a convenience.
@@ -147,7 +149,6 @@ class Command(command: Array<String>) {
                         if (directory.exists() && directory.isDirectory) {
                             Desktop.getDesktop().open(directory)
                             result = true
-
                         }
                     }
                 }
@@ -155,11 +156,9 @@ class Command(command: Array<String>) {
 
             else -> {
                 result = invalidateCommand(command)
-
             }
         }
 
         return result
-
     }
 }

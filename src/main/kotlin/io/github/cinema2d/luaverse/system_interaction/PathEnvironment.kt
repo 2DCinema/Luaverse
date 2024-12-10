@@ -7,32 +7,46 @@ import kotlinx.serialization.json.Json
 import io.github.cinema2d.luaverse.Settings
 
 class PathEnvironment {
-    private var envVariables: List<String> = System.getenv("Path").split(";")
+    private val envVariables: List<String>
+        get() = System.getenv("Path").split(";")
 
     /**
      * Creates a backup of the current Path system environment variable and stores it in a JSON file.
      * This works as a fail-safe in case something goes wrong so that a user can revert any unwanted changes.
      * Ideally, this function should be run before any changes are made.
      */
-     fun backup() {
+    fun backup(): Boolean {
+        // Using a safe (?) call in case the user just deletes a path when they try to modify one.
         val file: File = File("${Settings.directories["backup"]?.get(1)}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
-        val prettyJson: Json = Json{prettyPrint = true}
+        val prettyJson: Json = Json { prettyPrint = true }
         file.writeText(prettyJson.encodeToString(envVariables))
 
-        println("Backup created at $file")
-
+        if (file.exists()) {
+            println("Backup created at $file")
+            return true
+        } else {
+            println("Failed to create backup file in ${Settings.directories["backup"]?.get(1)}.")
+            return false
+        }
     }
 
     /**
      * Restores a backup created by backup().
      */
-//    private fun restore(file) {
-//        // Extra backup, in case someone restores the wrong file.
-//        backup()
-//
-//
-//
-//    }
+    fun restore(backupFile: String): Boolean {
+        // Extra backup, in case someone restores the wrong file.
+        backup()
+
+        val file: File = File("${Settings.directories["backup"]?.get(1)}\\$backupFile")
+
+        if (file.exists()) {
+
+
+        } else {
+
+
+        }
+    }
 
     /**
      * Attempts to find the specified version of Lua in the Path environment variable.
@@ -43,7 +57,6 @@ class PathEnvironment {
 
             if (pathObjects[pathObjects.size - 2] == "lua$version") {
                 return pathVariable
-
             }
         }
 

@@ -11,14 +11,12 @@ fun main() {
         if (input != null) {
             if (input.lowercase() == "exit") {
                 break
-
             }
 
             Command(input.split(" ").toTypedArray())
 
         } else {
             println("Usage: cliApp <command> <args>")
-
         }
     }
 }

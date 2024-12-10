@@ -23,16 +23,13 @@ class LuaSource(path: String) {
 
             } else {
                 println("Error: Batch file execution failed with exit code $exitCode.")
-
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
-
         }
 
         // Temporary. Should return true or false based on the success of the build.
         return true
-
     }
 }
