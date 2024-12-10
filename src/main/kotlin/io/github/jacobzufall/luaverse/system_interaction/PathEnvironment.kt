@@ -1,10 +1,13 @@
 package io.github.jacobzufall.luaverse.system_interaction
 
 import java.io.File
+import java.io.BufferedReader
+
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 import io.github.jacobzufall.luaverse.Settings
+
 
 class PathEnvironment {
     private val envValues: List<String>
@@ -42,21 +45,43 @@ class PathEnvironment {
         // Extra backup, in case someone restores the wrong file.
         println("Creating redundant backup.")
         backup()
-
+        
         val file: File = File("${Settings.directories["backup"]?.get(1)}\\$backupFile")
-
+        
         if (file.exists()) {
             val jsonString: String = file.readText()
             val json = Json { ignoreUnknownKeys = true }
             val restoredEnvValues: List<String> = json.decodeFromString<List<String>>(jsonString)
+            
+            val processBuilder: ProcessBuilder = ProcessBuilder()
 
             /*
             This loop compares each value in restoredEnvValues to envValues. If a value is in restoredEnvValues but
             isn't in envValues, it is added to envValues.
             */
             for (value in restoredEnvValues) {
-                println("If you're seeing this, it means you forgot to write part of the code!")
-                // TODO: Actually write the values.
+                if (value in envValues) continue else {
+                    println("Adding $value to PATH.")
+
+                    try {
+                        processBuilder.command("cmd.exe", "/c", "setx", "/M", "PATH", "\"%PATH%;$value\"")
+                        val process: Process = processBuilder.start()
+
+                        val output: String = process.inputStream.bufferedReader().use(BufferedReader::readText)
+                        val error: String = process.errorStream.bufferedReader().use(BufferedReader::readText)
+                        val exitCode: Int = process.waitFor()
+
+                        if (exitCode == 0) {
+                            println("Successfully added $value to PATH.")
+                            println("Output: $output")
+                        } else {
+                            println("Failed to update PATH. Exit code: $exitCode")
+                            println("Error: $error")
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             }
 
             /*

@@ -25,11 +25,7 @@ object Settings {
         )
     )
 
-    init {
-        for ((_, path) in directories) {
-            validateDirectory(Paths.get(path[1]))
-        }
-    }
+    init { for ((_, path) in directories) validateDirectory(Paths.get(path[1])) }
 
     /**
      * Checks if a directory exists and attempts to create it if it doesn't.
