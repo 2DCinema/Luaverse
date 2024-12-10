@@ -3,14 +3,13 @@ Currently, all commands return "true" or "false" based on if their execution was
 returned is unused, but I am implementing it in case it is needed in the future.
 */
 
-package io.github.cinema2d.luaverse
+package io.github.jacobzufall.luaverse
 
 import java.awt.Desktop
 import java.io.File
 
-import io.github.cinema2d.luaverse.system_interaction.LuaSource
-import io.github.cinema2d.luaverse.system_interaction.PathEnvironment
-import kotlin.io.path.Path
+import io.github.jacobzufall.luaverse.system_interaction.LuaSource
+import io.github.jacobzufall.luaverse.system_interaction.PathEnvironment
 
 class Command(command: List<String>) {
     // Map commands here.

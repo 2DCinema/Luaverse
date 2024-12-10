@@ -1,4 +1,4 @@
-package io.github.cinema2d.luaverse
+package io.github.jacobzufall.luaverse
 
 fun main() {
     println("Luaverse : Lua version manager for Windows systems.")

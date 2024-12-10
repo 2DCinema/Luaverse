@@ -1,6 +1,6 @@
-package io.github.cinema2d.luaverse.system_interaction
+package io.github.jacobzufall.luaverse.system_interaction
 
-import io.github.cinema2d.luaverse.Settings
+import io.github.jacobzufall.luaverse.Settings
 import java.io.File
 
 class LuaSource(path: String) {

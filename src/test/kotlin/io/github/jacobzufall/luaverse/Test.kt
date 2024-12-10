@@ -1,4 +1,4 @@
-package io.github.cinema2d.luaverse
+package io.github.jacobzufall.luaverse
 
 fun restore(command: Array<String>) {
     val hardRestore = command?.get(2) == "hard" ?: println("Whoops")

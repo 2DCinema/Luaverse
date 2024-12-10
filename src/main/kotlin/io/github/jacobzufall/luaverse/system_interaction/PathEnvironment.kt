@@ -1,10 +1,10 @@
-package io.github.cinema2d.luaverse.system_interaction
+package io.github.jacobzufall.luaverse.system_interaction
 
 import java.io.File
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-import io.github.cinema2d.luaverse.Settings
+import io.github.jacobzufall.luaverse.Settings
 
 class PathEnvironment {
     private val envValues: List<String>
