@@ -1,7 +1,7 @@
 /*
-    Currently, all commands return "true" or "false" based on if their execution was successful or not. Currently, the
-    value returned is unused, but I am implementing it in case it is needed in the future.
- */
+Currently, all commands return "true" or "false" based on if their execution was successful or not. Currently, the value
+returned is unused, but I am implementing it in case it is needed in the future.
+*/
 
 package io.github.cinema2d.luaverse
 
@@ -12,13 +12,13 @@ import io.github.cinema2d.luaverse.system_interaction.LuaSource
 import io.github.cinema2d.luaverse.system_interaction.PathEnvironment
 import kotlin.io.path.Path
 
-class Command(command: Array<String>) {
+class Command(command: List<String>) {
     // Map commands here.
     /*
-        TODO: Possible commands to consider.
-            Some sort of command to list off the versions currently installed. Maybe one single list command that can be
-            used to list of directories as well?
-     */
+    TODO: Possible commands to consider.
+        Some sort of command to list off the versions currently installed. Maybe one single list command that can be
+        used to list of directories as well?
+    */
     private val rootCommands = mapOf(
         "help" to ::helpCommand,
         "backup" to ::backupCommand,
@@ -34,7 +34,7 @@ class Command(command: Array<String>) {
      * @param[command] An array containing each command argument.
      * @return false
      */
-    private fun invalidateCommand(command: Array<String>): Boolean {
+    private fun invalidateCommand(command: List<String>): Boolean {
         println("${command.joinToString(separator = " ")} is not a valid command.")
         // Always returns false so that it may be called functionally, if desired.
         return false
@@ -45,11 +45,13 @@ class Command(command: Array<String>) {
      * @param[command] An array containing each command argument.
      * @return If the command was executed successfully or not.
      */
-    private fun helpCommand(command: Array<String>): Boolean {
+    private fun helpCommand(command: List<String>): Boolean {
         try {
             command[1]
-            // Eventually, I want to have more detailed information on each command, so that one could say "help build",
-            // and it would show them how to use that command.
+            /*
+            Eventually, I want to have more detailed information on each command, so that one could say "help build",
+            and it would show them how to use that command.
+            */
 
         } catch (e: ArrayIndexOutOfBoundsException) {
             println("Supported commands:")
@@ -66,12 +68,12 @@ class Command(command: Array<String>) {
      * @param[command] An array containing each command argument.
      * @return If the command was executed successfully or not.
      */
-    private fun backupCommand(command: Array<String>): Boolean {
+    private fun backupCommand(command: List<String>): Boolean {
         if (command.size > 1) return invalidateCommand(command)
         return PathEnvironment().backup()
     }
 
-    private fun restoreCommand(command: Array<String>): Boolean {
+    private fun restoreCommand(command: List<String>): Boolean {
         when (command.size) {
             1 -> {
                 println("Please specify the path to the backup. Backups can be found by invoking the \"dir backup\" " +
@@ -79,7 +81,17 @@ class Command(command: Array<String>) {
                 return false
             }
 
-            2 -> return PathEnvironment().restore(command[1])
+            2, 3 -> {
+                val hardRestore: Boolean = command.getOrNull(2) == "hard"
+//                val hardRestore: Boolean = try {
+//                    command[2] == "hard"
+//                } catch (e: ArrayIndexOutOfBoundsException) {
+//                    false
+//                }
+
+                return PathEnvironment().restore(command[1], hardRestore)
+            }
+
             else -> return invalidateCommand(command)
         }
     }
@@ -89,26 +101,25 @@ class Command(command: Array<String>) {
      * @param[command] An array containing each command argument.
      * @return If the command was executed successfully or not.
      */
-    private fun buildCommand(command: Array<String>): Boolean {
-        var result: Boolean = false
-
+    private fun buildCommand(command: List<String>): Boolean {
         when (command.size) {
-            // In case one doesn't include the path as the second argument when they invoke the build command, we will give
-            // them another chance to specify it.
+            /*
+            In case one doesn't include the path as the second argument when they invoke the build command, we will give
+            them another chance to specify it.
+            */
             1 -> {
                 println("Please specify the path to the Lua source code. \"Makefile\" should be present in the directory.")
+                return false
             }
 
             2 -> {
-                result = LuaSource(command[1]).build()
+                return LuaSource(command[1]).build()
             }
 
             else -> {
-                result = invalidateCommand(command)
+                return invalidateCommand(command)
             }
         }
-
-        return result
     }
 
     /**
@@ -116,9 +127,7 @@ class Command(command: Array<String>) {
      * @param[command] An array containing each command argument.
      * @return If the command was executed successfully or not.
      */
-    private fun dirCommand(command: Array<String>): Boolean {
-        var result: Boolean = false
-
+    private fun dirCommand(command: List<String>): Boolean {
         when (command.size) {
             // If the command is simply "dir", the program will list every directory used.
             1 -> {
@@ -137,7 +146,7 @@ class Command(command: Array<String>) {
                 println("[[[END OF LISTING]]]")
                 println("\n")
 
-                result = true
+                return true
             }
 
             // Optionally, the user can specify a directory name after dir, and we'll open that directory as a convenience.
@@ -148,17 +157,15 @@ class Command(command: Array<String>) {
 
                         if (directory.exists() && directory.isDirectory) {
                             Desktop.getDesktop().open(directory)
-                            result = true
+                            return true
                         }
                     }
                 }
+
+                return false
             }
 
-            else -> {
-                result = invalidateCommand(command)
-            }
+            else -> return invalidateCommand(command)
         }
-
-        return result
     }
 }

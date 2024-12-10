@@ -13,7 +13,8 @@ fun main() {
                 break
             }
 
-            Command(input.split(" ").toTypedArray())
+            // I don't know if I should use List or Array.
+            Command(input.split(" ").toList())
 
         } else {
             println("Usage: cliApp <command> <args>")

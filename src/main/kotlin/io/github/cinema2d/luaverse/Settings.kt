@@ -8,9 +8,11 @@ import kotlin.io.path.isDirectory
 object Settings {
     private val appDataPath: Path = Paths.get(System.getenv("APPDATA")).parent
 
-    // Each map index is a unique nickname of the directory. Each map value is a list containing [0] a description of
-    // the directory, and [1] the directory itself, as a String.
-    // TODO: Make this variable private?
+    /*
+    Each map index is a unique nickname of the directory. Each map value is a list containing [0] a description of
+    the directory, and [1] the directory itself, as a String.
+    TODO: Make this variable private?
+    */
     var directories: Map<String, List<String>> = mapOf(
         "build" to mutableListOf(
             "The directory where Lua is built to.",

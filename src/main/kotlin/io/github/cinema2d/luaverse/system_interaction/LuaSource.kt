@@ -1,17 +1,17 @@
 package io.github.cinema2d.luaverse.system_interaction
 
+import io.github.cinema2d.luaverse.Settings
 import java.io.File
 
 class LuaSource(path: String) {
     private val luaFolder: String = path.split("\\").last()
     private val luaVersion: String = luaFolder.split("-").last()
-    // Builds Lua in the same directory that the source code is contained in.
-    private val buildDirectory: String = File(path).parent
 
     fun build(): Boolean {
-        val command: String = String.format("build.bat \"%s\" \"%s\"", luaVersion, buildDirectory)
+        val command: String = String.format("build.bat \"%s\" \"%s\"", luaVersion, Settings.directories["build"])
 
         try {
+            // I originally did this in Lua, and had ChatGPT convert it to Kotlin since I wasn't sure how to do it, sorry.
             val process = ProcessBuilder(command.split(" "))
                 .directory(File(System.getProperty("user.dir")))
                 .start()
