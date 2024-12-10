@@ -1,5 +1,5 @@
 /*
-Currently, all commands return "true" or "false" based on if their execution was successful or not. Currently, the value
+All commands return "true" or "false" based on if their execution was successful or not. Currently, the value
 returned is unused, but I am implementing it in case it is needed in the future.
 */
 
@@ -54,9 +54,7 @@ class Command(command: List<String>) {
 
         } catch (e: ArrayIndexOutOfBoundsException) {
             println("Supported commands:")
-            for ((name, _) in rootCommands) {
-                println("  - $name")
-            }
+            for ((name, _) in rootCommands) println("  - $name")
         }
 
         return true
@@ -111,13 +109,9 @@ class Command(command: List<String>) {
                 return false
             }
 
-            2 -> {
-                return LuaSource(command[1]).build()
-            }
+            2 -> return LuaSource(command[1]).build()
 
-            else -> {
-                return invalidateCommand(command)
-            }
+            else -> return invalidateCommand(command)
         }
     }
 
