@@ -75,8 +75,19 @@ class PathEnvironment {
             effectively left alone.
             */
             if (hardRestore) {
-                println("Need to code hardRestore")
+                // Not entirely sure if this is correct yet.
+                val processBuilder: ProcessBuilder = ProcessBuilder()
+                processBuilder.command(
+                    "cmd",
+                    "/c",
+                    "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" /v Path /t REG_EXPAND_SZ /d \"$currentPath;$path\" /f"
+                )
+                val process: Process = processBuilder.start()
+
+
+
             } else {
+                // This adds it to the user path, not system path, so this needs to be fixed.
                 for (value in restoredEnvValues) {
                     val processBuilder: ProcessBuilder = ProcessBuilder()
                     processBuilder.command("cmd", "/c", "setx PATH \"%PATH%;$value\"")
@@ -91,6 +102,7 @@ class PathEnvironment {
                     }
                 }
             }
+
 
             return true
 
