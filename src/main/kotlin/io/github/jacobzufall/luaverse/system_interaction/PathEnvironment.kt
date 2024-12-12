@@ -61,10 +61,10 @@ class PathEnvironment {
         println("Creating redundant backup.")
         backup()
         
-        val file: File = File("${Settings.directories["backup"]?.get(1)}\\$backupFile")
+        val fileToRestore: File = File("${Settings.directories["backup"]?.get(1)}\\$backupFile")
         
-        if (file.exists()) {
-            val jsonString: String = file.readText()
+        if (fileToRestore.exists()) {
+            val jsonString: String = fileToRestore.readText()
             val json = Json { ignoreUnknownKeys = true }
             val restoredEnvValues: List<String> = json.decodeFromString<List<String>>(jsonString)
 
@@ -77,63 +77,22 @@ class PathEnvironment {
             if (hardRestore) {
                 println("Need to code hardRestore")
             } else {
+                for (value in restoredEnvValues) {
+                    val processBuilder: ProcessBuilder = ProcessBuilder()
+                    processBuilder.command("cmd", "/c", "setx PATH \"%PATH%;$value\"")
+                    val process: Process = processBuilder.start()
 
+                    val exitCode: Int = process.waitFor()
 
+                    if (exitCode != 0) {
+                        println("Failed to add $value to PATH.")
+                    } else {
+                        println("Successfully added $value to PATH.")
+                    }
+                }
             }
 
-            println(pathValues)
-            println(restoredEnvValues)
-//
             return true
-
-//            val processBuilder: ProcessBuilder = ProcessBuilder()
-//
-//            /*
-//            This loop compares each value in restoredEnvValues to envValues. If a value is in restoredEnvValues but
-//            isn't in envValues, it is added to envValues.
-//            */
-//            for (value in restoredEnvValues) {
-//                if (value in envValues) continue else {
-//                    println("Adding $value to PATH.")
-//
-//                    try {
-//                        processBuilder.command("cmd.exe", "/c", "setx", "/M", "PATH", "\"%PATH%;$value\"")
-//                        val process: Process = processBuilder.start()
-//
-//                        val output: String = process.inputStream.bufferedReader().use(BufferedReader::readText)
-//                        val error: String = process.errorStream.bufferedReader().use(BufferedReader::readText)
-//                        val exitCode: Int = process.waitFor()
-//
-//                        if (exitCode == 0) {
-//                            println("Successfully added $value to PATH.")
-//                            println("Output: $output")
-//                        } else {
-//                            println("Failed to update PATH. Exit code: $exitCode")
-//                            println("Error: $error")
-//                        }
-//                    } catch (e: Exception) {
-//                        e.printStackTrace()
-//                    }
-//                }
-//            }
-//
-//            /*
-//            A hard restore restores the environment variable to EXACTLY how it was when the backup was created.
-//            This means, if there's a value in envValues that isn't in restoredEnvValues, we DELETE it from the
-//            environment variable. A soft restore is the default, and the user has to be explicit for a hard restore.
-//
-//            My reasoning for this is that we can't accidentally delete something if we don't delete anything at all.
-//            So I'll leave it up to the user to accept that risk. They can always go in and manually remove values if
-//            they're uncomfortable.
-//            */
-//            if (hardRestore) {
-//                for (value in envValues) {
-//                    println("If you're seeing this, it means you forgot to write part of the code!")
-//                    // TODO: Actually write the values.
-//                }
-//            }
-//
-//            return true
 
         } else {
             println("Could not locate $backupFile in ${Settings.directories["backup"]?.get(1)}.")
@@ -154,7 +113,6 @@ class PathEnvironment {
         }
 
         return null
-
     }
 
 //    fun addVersion(version: String): Boolean {}
