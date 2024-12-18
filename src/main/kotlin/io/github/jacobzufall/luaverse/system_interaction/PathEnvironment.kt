@@ -60,6 +60,7 @@ class PathEnvironment {
                 that are not found in the PATH.
             */
             if (hardRestore) {
+                println("Performing hard restore of $backupFile.")
                 /*
                 Takes the restoredEnvValues and converts it to a string delineated by semicolons, with a trailing
                 semicolon since that's what Windows does. This is then loaded into the Path environment variable.
@@ -71,6 +72,7 @@ class PathEnvironment {
                 exitCode = process.waitFor()
 
             } else {
+                println("Performing soft restore of $backupFile.")
                 val valuesToRestore: MutableList<String> = mutableListOf()
 
                 for (value in restoredEnvValues) {
