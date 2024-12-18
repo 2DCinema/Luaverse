@@ -10,7 +10,28 @@ import io.github.jacobzufall.luaverse.Settings
 
 class PathEnvironment {
     // Should PathEnvironment just inherit EnvironmentVariable?
-    private val pathEnvVar: EnvironmentVariable = EnvironmentVariable("Path")
+    private val regKey: String = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
+    private val envVar: String = "Path"
+
+    private val pathVarValues: List<String>
+        get() {
+            val process: Process = ProcessBuilder("cmd.exe", "/c", "reg query \"$regKey\"").start()
+
+            val output: MutableList<String> = process.inputStream.bufferedReader().readText().split("    ").toMutableList()
+            process.waitFor()
+
+            val pathValues: MutableList<String> = output[output.indexOf(envVar) + 2].split(";").toMutableList()
+            // Sometimes it shows escape characters at the end, which we don't want.
+            if (pathValues.last() == "\r\n") pathValues.removeLast()
+            // Removes any break-lines and such off the end.
+            for (value in pathValues) value.trim()
+
+            return pathValues.toList()
+        }
+
+    fun getPathValuesAsString(): String {
+        return pathVarValues.joinToString(";")
+    }
 
     /**
      * Creates a backup of the current Path system environment variable and stores it in a JSON file. This works as a
@@ -21,7 +42,7 @@ class PathEnvironment {
     fun backup(): Boolean {
         val file: File = File("${Settings.directories["backup"]?.get(1)}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
         val prettyJson: Json = Json { prettyPrint = true }
-        file.writeText(prettyJson.encodeToString(pathEnvVar.values))
+        file.writeText(prettyJson.encodeToString(pathVarValues))
 
         if (file.exists()) {
             println("Backup created at $file")
@@ -65,8 +86,8 @@ class PathEnvironment {
                 Takes the restoredEnvValues and converts it to a string delineated by semicolons, with a trailing
                 semicolon since that's what Windows does. This is then loaded into the Path environment variable.
                 */
-                val process: Process = ProcessBuilder("reg", "add", pathEnvVar.regKey, "/v",
-                    pathEnvVar.envVar, "/t", "REG_EXPAND_SZ", "/d", restoredEnvValues.joinToString(separator = ";") + ";",
+                val process: Process = ProcessBuilder("reg", "add", regKey, "/v",
+                    envVar, "/t", "REG_EXPAND_SZ", "/d", restoredEnvValues.joinToString(separator = ";") + ";",
                     "/f").inheritIO().start()
 
                 exitCode = process.waitFor()
@@ -75,8 +96,15 @@ class PathEnvironment {
                 println("Performing soft restore of $backupFile.")
                 val valuesToRestore: MutableList<String> = mutableListOf()
 
+                //println("--- CURRENT PATH VARIABLE VALUES ---")
+                //for (value in pathEnvVar.values) println(value)
+
+                //println("--- BACKUP PATH VARIABLE VALUES ---")
+                //for (value in restoredEnvValues) println(value)
+
+
                 for (value in restoredEnvValues) {
-                    if (value !in pathEnvVar.values) {
+                    if (value !in pathVarValues) {
                         valuesToRestore.add(value)
                     }
                 }
@@ -85,10 +113,21 @@ class PathEnvironment {
                 Tacks values that were found in the backup and not in the Path environment variable on to the end of the
                 current value.
                 */
-                val newPathValue: String = pathEnvVar.rawValues + valuesToRestore.joinToString(separator = ";") + ";"
+                println("--- VALUES ---")
+                println(pathVarValues.size)
+                for (value in pathVarValues) println(value)
+                println("--- RAW ---")
+                println(pathVarValues.joinToString(separator = ";"))
 
-                val process: Process = ProcessBuilder("reg", "add", pathEnvVar.regKey, "/v",
-                    pathEnvVar.envVar, "/t", "REG_EXPAND_SZ", "/d", newPathValue, "/f").inheritIO().start()
+                var currentPathValue: String = pathVarValues.joinToString(separator = ";")
+                if (!currentPathValue.endsWith(":")) currentPathValue += ";"
+
+                val newPathValue: String = currentPathValue + valuesToRestore.joinToString(separator = ";") + ";"
+
+                println(newPathValue)
+
+                val process: Process = ProcessBuilder("reg", "add", regKey, "/v",
+                    envVar, "/t", "REG_EXPAND_SZ", "/d", newPathValue, "/f").inheritIO().start()
 
                 exitCode = process.waitFor()
 
@@ -113,7 +152,7 @@ class PathEnvironment {
      * Attempts to find the specified version of Lua in the Path environment variable.
      */
     private fun findVersion(version: String): String? {
-        for (pathVariable in pathEnvVar.values) {
+        for (pathVariable in pathVarValues) {
             val pathObjects: List<String> = pathVariable.split("\\")
 
             if (pathObjects[pathObjects.size - 2] == "lua$version") {
