@@ -7,7 +7,11 @@ class LuaSource(path: String) {
     private val luaFolder: String = path.split("\\").last()
     private val luaVersion: String = luaFolder.split("-").last()
 
-    fun build(): Boolean {
+    fun build() {
+
+    }
+
+    fun build_old(): Boolean {
         val command: String = String.format("build.bat \"%s\" \"%s\"", luaVersion, Settings.directories["build"])
 
         try {

@@ -20,4 +20,6 @@ fun main() {
             println("Usage: cliApp <command> <args>")
         }
     }
+
+    println("Luaverse : Process ending...")
 }

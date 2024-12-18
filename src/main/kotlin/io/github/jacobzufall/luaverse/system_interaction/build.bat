@@ -1,10 +1,13 @@
 :: This file comes from http://lua-users.org/wiki/BuildingLua.
 :: I did not write it myself, so I'm not too familiar with how it works.
 
-@echo off
-setlocal
-set lua_version=%1
+:: I plan on removing this eventually.
 
+@echo off
+
+setlocal
+
+set lua_version=%1
 set work_dir=%2
 
 echo %work_dir%
