@@ -85,7 +85,6 @@ class Command(command: List<String>) {
 //                } catch (e: ArrayIndexOutOfBoundsException) {
 //                    false
 //                }
-
                 return PathEnvironment().restore(command[1], hardRestore)
             }
 

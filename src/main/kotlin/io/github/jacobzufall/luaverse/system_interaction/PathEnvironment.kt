@@ -9,36 +9,19 @@ import io.github.jacobzufall.luaverse.Settings
 
 
 class PathEnvironment {
-    private val pathValues: List<String>
-        get() {
-            val processBuilder: ProcessBuilder = ProcessBuilder()
-            processBuilder.command(
-                "cmd.exe",
-                "/c",
-                "reg query \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\""
-            )
-            val process: Process = processBuilder.start()
-
-            val output: MutableList<String> = process.inputStream.bufferedReader().readText().split("    ").toMutableList()
-            process.waitFor()
-
-            val pathValues: MutableList<String> = output[output.indexOf("Path") + 2].split(";").toMutableList()
-            // Sometimes it shows escape characters at the end, which we don't want.
-            if (pathValues.last() == "\r\n") pathValues.removeLast()
-
-            return pathValues.toList()
-        }
+    // Should PathEnvironment just inherit EnvironmentVariable?
+    private val pathEnvVar: EnvironmentVariable = EnvironmentVariable("Path")
 
     /**
-     * Creates a backup of the current Path system environment variable and stores it in a JSON file.
-     * This works as a fail-safe in case something goes wrong so that a user can revert any unwanted changes.
-     * Ideally, this function should be run before any changes are made.
+     * Creates a backup of the current Path system environment variable and stores it in a JSON file. This works as a
+     * fail-safe in case something goes wrong so that a user can revert any unwanted changes. Ideally, this function
+     * should be run before any changes are made.
      * @return If the backup was completed successfully or not.
      */
     fun backup(): Boolean {
         val file: File = File("${Settings.directories["backup"]?.get(1)}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
         val prettyJson: Json = Json { prettyPrint = true }
-        file.writeText(prettyJson.encodeToString(pathValues))
+        file.writeText(prettyJson.encodeToString(pathEnvVar.values))
 
         if (file.exists()) {
             println("Backup created at $file")
@@ -68,41 +51,53 @@ class PathEnvironment {
             val json = Json { ignoreUnknownKeys = true }
             val restoredEnvValues: List<String> = json.decodeFromString<List<String>>(jsonString)
 
+            var exitCode: Int = 0
+
             /*
-            A hard restore directly sets PATH to equal restoredEnvValues as a string with ";" delimiters. A soft
-            restore goes through the PATH and checks which values are not in envValues that are in restoredEnvValues.
-            If a value isn't in envValues, it's added. Values in envValues that aren't in restoredEnvValues are
-            effectively left alone.
+            A hard restore completely overrides the PATH variable to match the restore file.
+
+            A soft restore compares the current PATH variable to the backup, and adds in any values found in the backup
+                that are not found in the PATH.
             */
             if (hardRestore) {
-                // Not entirely sure if this is correct yet.
-                val processBuilder: ProcessBuilder = ProcessBuilder()
-                processBuilder.command(
-                    "cmd",
-                    "/c",
-                    "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\" /v Path /t REG_EXPAND_SZ /d \"$currentPath;$path\" /f"
-                )
-                val process: Process = processBuilder.start()
+                /*
+                Takes the restoredEnvValues and converts it to a string delineated by semicolons, with a trailing
+                semicolon since that's what Windows does. This is then loaded into the Path environment variable.
+                */
+                val process: Process = ProcessBuilder("reg", "add", pathEnvVar.regKey, "/v",
+                    pathEnvVar.envVar, "/t", "REG_EXPAND_SZ", "/d", restoredEnvValues.joinToString(separator = ";") + ";",
+                    "/f").inheritIO().start()
 
-
+                exitCode = process.waitFor()
 
             } else {
-                // This adds it to the user path, not system path, so this needs to be fixed.
+                val valuesToRestore: MutableList<String> = mutableListOf()
+
                 for (value in restoredEnvValues) {
-                    val processBuilder: ProcessBuilder = ProcessBuilder()
-                    processBuilder.command("cmd", "/c", "setx PATH \"%PATH%;$value\"")
-                    val process: Process = processBuilder.start()
-
-                    val exitCode: Int = process.waitFor()
-
-                    if (exitCode != 0) {
-                        println("Failed to add $value to PATH.")
-                    } else {
-                        println("Successfully added $value to PATH.")
+                    if (value !in pathEnvVar.values) {
+                        valuesToRestore.add(value)
                     }
                 }
+
+                /*
+                Tacks values that were found in the backup and not in the Path environment variable on to the end of the
+                current value.
+                */
+                val newPathValue: String = pathEnvVar.rawValues + valuesToRestore.joinToString(separator = ";") + ";"
+
+                val process: Process = ProcessBuilder("reg", "add", pathEnvVar.regKey, "/v",
+                    pathEnvVar.envVar, "/t", "REG_EXPAND_SZ", "/d", newPathValue, "/f").inheritIO().start()
+
+                exitCode = process.waitFor()
+
             }
 
+            if (exitCode != 0) {
+                println("Failed to restore $backupFile.")
+
+            } else {
+                println("$backupFile was successfully restored.")
+            }
 
             return true
 
@@ -116,7 +111,7 @@ class PathEnvironment {
      * Attempts to find the specified version of Lua in the Path environment variable.
      */
     private fun findVersion(version: String): String? {
-        for (pathVariable in pathValues) {
+        for (pathVariable in pathEnvVar.values) {
             val pathObjects: List<String> = pathVariable.split("\\")
 
             if (pathObjects[pathObjects.size - 2] == "lua$version") {
