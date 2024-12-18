@@ -52,7 +52,7 @@ class Command(command: List<String>) {
             and it would show them how to use that command.
             */
 
-        } catch (e: ArrayIndexOutOfBoundsException) {
+        } catch (e: IndexOutOfBoundsException) {
             println("Supported commands:")
             for ((name, _) in rootCommands) println("  - $name")
         }
@@ -80,11 +80,6 @@ class Command(command: List<String>) {
 
             2, 3 -> {
                 val hardRestore: Boolean = command.getOrNull(2) == "hard"
-//                val hardRestore: Boolean = try {
-//                    command[2] == "hard"
-//                } catch (e: ArrayIndexOutOfBoundsException) {
-//                    false
-//                }
                 return PathEnvironment().restore(command[1], hardRestore)
             }
 
@@ -123,20 +118,20 @@ class Command(command: List<String>) {
         when (command.size) {
             // If the command is simply "dir", the program will list every directory used.
             1 -> {
-                println("\n")
+                print("\n")
                 println("[[[DIRECTORY LISTING]]]")
                 println("You can open any of the following directories by typing in \"dir <name>\".`")
-                println("\n")
+                print("\n")
 
                 for ((dirName, dirInfo) in Settings.directories) {
                     println(dirName)
                     println(dirInfo[0])
                     println(dirInfo[1])
-                    println("\n")
+                    print("\n")
                 }
 
                 println("[[[END OF LISTING]]]")
-                println("\n")
+                print("\n")
 
                 return true
             }
