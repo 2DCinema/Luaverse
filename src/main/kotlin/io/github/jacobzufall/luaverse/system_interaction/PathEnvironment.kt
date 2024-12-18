@@ -211,7 +211,7 @@ class PathEnvironment {
         val binPath: String = "${Settings.directories["build"]?.get(1)}\\Lua$cleanVersion\\bin"
         val newPathValues: MutableList<String> = pathVarValues.toMutableList()
 
-        // Is the for loop necessary? Or can kotlin.collections.MutableList.remove() stand on its own?
+        // Is this for loop necessary? Or can kotlin.collections.MutableList.remove() stand on its own?
         for (value in newPathValues) {
             if (binPath == value) {
                 newPathValues.remove(value)

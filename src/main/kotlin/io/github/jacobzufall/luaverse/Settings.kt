@@ -11,7 +11,8 @@ object Settings {
     /*
     Each map index is a unique nickname of the directory. Each map value is a list containing [0] a description of
     the directory, and [1] the directory itself, as a String.
-    TODO: Make this variable private?
+    TODO: Make this variable a property?
+    TODO: Should this be a Map of Maps instead of a Map of Lists?
     */
     var directories: Map<String, List<String>> = mapOf(
         "build" to mutableListOf(
