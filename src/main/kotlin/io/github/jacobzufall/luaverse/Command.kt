@@ -20,8 +20,7 @@ class Command(command: List<String>) {
     */
     private val rootCommands = mapOf(
         "help" to ::helpCommand,
-        "backup" to ::backupCommand,
-        "restore" to ::restoreCommand,
+        "registry" to ::registryCommand,
         "build" to ::buildCommand,
         "dir" to ::dirCommand
     )
@@ -60,14 +59,30 @@ class Command(command: List<String>) {
         return true
     }
 
-    /**
-     * Manually creates a backup of the current Path environment variables.
-     * @param[command] An array containing each command argument.
-     * @return If the command was executed successfully or not.
-     */
-    private fun backupCommand(command: List<String>): Boolean {
-        if (command.size > 1) return invalidateCommand(command)
-        return PathEnvironment().backup()
+    private fun registryCommand(command: List<String>): Boolean {
+        if (command.size == 1) return invalidateCommand(command)
+
+        when (command[1]) {
+            "backup" -> {
+                if (command.size > 2) {
+                    println("Too many arguments entered for command \"registry backup\". Ignoring the following:")
+
+                    for (argument in command.subList(2, command.size - 1)) {
+                        println(argument)
+                    }
+                }
+                return PathEnvironment().backup()
+            }
+
+            "restore" -> {
+                when (command.size) {
+                    2 ->
+
+                }
+            }
+
+            else -> return invalidateCommand(command)
+        }
     }
 
     private fun restoreCommand(command: List<String>): Boolean {
