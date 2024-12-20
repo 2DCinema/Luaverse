@@ -41,7 +41,7 @@ class PathEnvironment {
             return validatedText
         }
 
-        var newPathValue: String = pathVarValues.joinToString(separator = ";")
+        var newPathValue: String = pathVarValues.joinToString(";")
         // Not sure how necessary this function call is.
         checkForSc(newPathValue)
 
@@ -138,7 +138,7 @@ class PathEnvironment {
                     }
                 }
 
-                exitCode = appendToSystemPath(valuesToRestore.joinToString(separator = ";"))
+                exitCode = appendToSystemPath(valuesToRestore.joinToString(";"))
             }
 
             if (exitCode != 0) {
@@ -195,7 +195,7 @@ class PathEnvironment {
      */
     fun addVersion(version: String): Boolean {
         // Converts x.x.x into xxx.
-        val cleanVersion: String = version.split(".").joinToString(separator = "")
+        val cleanVersion: String = version.split(".").joinToString("")
         val binPath: String = "${Settings.directories["build"]?.get(1)}\\Lua$cleanVersion\\bin"
 
         if (!findVersion(cleanVersion)) {
@@ -207,7 +207,7 @@ class PathEnvironment {
 
     fun removeVersion(version: String) {
         // Versions are usually displayed as "x.x.x" when downloaded, but they are installed as "xxx".
-        val cleanVersion: String = version.split(".").joinToString(separator = "")
+        val cleanVersion: String = version.split(".").joinToString("")
         val binPath: String = "${Settings.directories["build"]?.get(1)}\\Lua$cleanVersion\\bin"
         val newPathValues: MutableList<String> = pathVarValues.toMutableList()
 

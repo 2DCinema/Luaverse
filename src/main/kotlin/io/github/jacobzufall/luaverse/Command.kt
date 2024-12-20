@@ -103,7 +103,7 @@ class Command(command: List<String>) {
                 return false
             }
 
-            2 -> return LuaSource(command[1]).build_old()
+            2 -> return LuaSource(command[1]).oldBuild()
 
             else -> return invalidateCommand(command)
         }
