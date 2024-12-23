@@ -9,7 +9,7 @@ import java.awt.Desktop
 import java.io.File
 
 import io.github.jacobzufall.luaverse.lua.LuaVersions
-import io.github.jacobzufall.luaverse.system_interaction.LuaSource // Will be removed eventually.
+import io.github.jacobzufall.luaverse.system_interaction.LuaSourceOld // Will be removed eventually.
 import io.github.jacobzufall.luaverse.system_interaction.PathEnvironment
 
 class Command(command: List<String>) {
@@ -132,11 +132,15 @@ class Command(command: List<String>) {
         when (command.size) {
             // If the user just says "build", the tool downloads and builds the current latest version.
             1 -> {
-                println(LuaVersions.luaVersionFiles.firstNotNullOf()) // can't figure this out
-                return false
+                /*
+                The latest version is always at the top of the website, so we can just grab the first value from
+                the map.
+                */
+                println(LuaVersions.luaVersionFiles.firstNotNullOfOrNull { it })
+                return true
             }
 
-            2 -> return LuaSource(command[1]).oldBuild()
+            2 -> return LuaSourceOld(command[1]).oldBuild()
 
             else -> return invalidateCommand(command)
         }

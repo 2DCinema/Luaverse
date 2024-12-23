@@ -5,7 +5,7 @@ import java.io.File
 
 import io.github.jacobzufall.luaverse.Settings
 
-class LuaSource(path: String = "") {
+class LuaSourceOld(path: String = "") {
     fun downloadLuaVersion(version: String) {
 
 

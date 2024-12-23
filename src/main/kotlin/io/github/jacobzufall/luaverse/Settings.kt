@@ -23,6 +23,11 @@ object Settings {
         "backup" to mutableListOf(
             "The directory where backups of the Path environment variable are stored.",
             "$appDataPath\\Roaming\\Luaverse\\Backups"
+        ),
+
+        "download" to mutableListOf(
+            "The directory where Lua's source code is downloaded to prior to being built.",
+            "$appDataPath\\Roaming\\Luaverse\\Source"
         )
     )
 
