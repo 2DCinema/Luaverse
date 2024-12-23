@@ -8,7 +8,8 @@ package io.github.jacobzufall.luaverse
 import java.awt.Desktop
 import java.io.File
 
-import io.github.jacobzufall.luaverse.system_interaction.LuaSource
+import io.github.jacobzufall.luaverse.lua.LuaVersions
+import io.github.jacobzufall.luaverse.system_interaction.LuaSource // Will be removed eventually.
 import io.github.jacobzufall.luaverse.system_interaction.PathEnvironment
 
 class Command(command: List<String>) {
@@ -22,10 +23,27 @@ class Command(command: List<String>) {
         "help" to ::helpCommand,
         "registry" to ::registryCommand,
         "build" to ::buildCommand,
-        "dir" to ::dirCommand
+        "dir" to ::dirCommand,
+        "debug" to ::debugCommand
     )
 
     init { rootCommands[command[0].lowercase()]?.invoke(command) ?: invalidateCommand(command) }
+
+    /**
+     * Debug commands for testing purposes.
+     */
+    private fun debugCommand(command: List<String>): Boolean {
+        if (command.size == 1) return invalidateCommand(command)
+
+        when (command[1].lowercase()) {
+            "getluaversions" -> {
+                LuaVersions.getAvailableLuaVersions()
+            }
+        }
+
+        return true
+
+    }
 
     /**
      * Designed to be called whenever any command cannot be completed.
@@ -44,6 +62,7 @@ class Command(command: List<String>) {
      * @return If the command was executed successfully or not.
      */
     private fun helpCommand(command: List<String>): Boolean {
+        // ???
         try {
             command[1]
             /*
@@ -59,10 +78,17 @@ class Command(command: List<String>) {
         return true
     }
 
+    /**
+     * This command and all commands contained handle the registry on Windows systems. Functions may include backing up,
+     * modifying, and restoring the registry to a previous state.
+     * @param[command] An array containing each command argument.
+     * @return If the command was executed successfully or not.
+     */
     private fun registryCommand(command: List<String>): Boolean {
         if (command.size == 1) return invalidateCommand(command)
 
-        when (command[1]) {
+        when (command[1].lowercase()) {
+            // Example use of this command: "registry backup"
             "backup" -> {
                 if (command.size > 2) {
                     println("Too many arguments entered for command \"registry backup\". Ignoring the following:")
@@ -74,10 +100,21 @@ class Command(command: List<String>) {
                 return PathEnvironment().backup()
             }
 
+            // Example use of this command: "registry restore luaverse_path-backup_1734551704987.json"
             "restore" -> {
                 when (command.size) {
-                    2 ->
+                    2 -> {
+                        println("Please specify the path to the backup. Backups can be found by invoking the \"dir backup\" " +
+                                "command or navigating to ${Settings.directories["backup"]?.get(1)}.")
+                        return false
+                    }
 
+                    3, 4 -> {
+                        val hardRestore: Boolean = command.getOrNull(2) == "hard"
+                        return PathEnvironment().restore(command[1], hardRestore)
+                    }
+
+                    else -> return invalidateCommand(command)
                 }
             }
 
@@ -85,36 +122,17 @@ class Command(command: List<String>) {
         }
     }
 
-    private fun restoreCommand(command: List<String>): Boolean {
-        when (command.size) {
-            1 -> {
-                println("Please specify the path to the backup. Backups can be found by invoking the \"dir backup\" " +
-                        "command or navigating to ${Settings.directories["backup"]?.get(1)}.")
-                return false
-            }
-
-            2, 3 -> {
-                val hardRestore: Boolean = command.getOrNull(2) == "hard"
-                return PathEnvironment().restore(command[1], hardRestore)
-            }
-
-            else -> return invalidateCommand(command)
-        }
-    }
-
     /**
-     * Builds Lua to the build directory.
+     * Builds Lua to the build directory. Users can specify the location of an already downloaded Lua binary, or enter
+     * the version they wish to download.
      * @param[command] An array containing each command argument.
      * @return If the command was executed successfully or not.
      */
     private fun buildCommand(command: List<String>): Boolean {
         when (command.size) {
-            /*
-            In case one doesn't include the path as the second argument when they invoke the build command, we will give
-            them another chance to specify it.
-            */
+            // If the user just says "build", the tool downloads and builds the current latest version.
             1 -> {
-                println("Please specify the path to the Lua source code. \"Makefile\" should be present in the directory.")
+                println(LuaVersions.luaVersionFiles.firstNotNullOf()) // can't figure this out
                 return false
             }
 
