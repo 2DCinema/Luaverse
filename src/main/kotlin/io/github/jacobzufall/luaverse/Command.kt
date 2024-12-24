@@ -9,8 +9,8 @@ import java.awt.Desktop
 import java.io.File
 
 import io.github.jacobzufall.luaverse.lua.LuaVersions
-import io.github.jacobzufall.luaverse.system_interaction.LuaSourceOld // Will be removed eventually.
-import io.github.jacobzufall.luaverse.system_interaction.PathEnvironment
+import io.github.jacobzufall.luaverse.systemInteraction.LuaSourceOld // Will be removed eventually.
+import io.github.jacobzufall.luaverse.systemInteraction.PathEnvironment
 
 class Command(command: List<String>) {
     // Map commands here.

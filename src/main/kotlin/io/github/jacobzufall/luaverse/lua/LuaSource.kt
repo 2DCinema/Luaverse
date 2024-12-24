@@ -1,10 +1,15 @@
 package io.github.jacobzufall.luaverse.lua
 
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 import io.github.jacobzufall.luaverse.lua.LuaVersions
 import io.github.jacobzufall.luaverse.Settings
@@ -29,5 +34,10 @@ class LuaSource {
                 }
             }
         }
+    }
+
+    fun extract(version: String) {
+        // Checks if a version of the binary is already downloaded.
+        var compressedSourceFile: File = File("${Settings.directories["download"]!![1]}\\lua-")
     }
 }
