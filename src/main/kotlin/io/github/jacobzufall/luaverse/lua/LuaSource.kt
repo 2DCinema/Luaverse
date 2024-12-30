@@ -11,33 +11,30 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-import io.github.jacobzufall.luaverse.lua.LuaVersions
 import io.github.jacobzufall.luaverse.Settings
+import io.github.jacobzufall.luaverse.utility.VersionString
 
 class LuaSource {
-    fun download(version: String) {
-        when (version.lowercase()) {
-            // This allows the user to specify no arguments for version and download the latest one.
-            "latest" -> {
-                val latestSourceFileUrl: String = LuaVersions.luaVersionFiles.firstNotNullOf { it.value }
+    fun download(version: VersionString) {
+        fun fetchFileFromFtp(url: String) {
+            val client: OkHttpClient = OkHttpClient()
+            val request: Request =  Request.Builder().url(url).build()
+            val response: Response = client.newCall(request).execute()
 
-                val client: OkHttpClient = OkHttpClient()
-                val request: Request =  Request.Builder().url(latestSourceFileUrl).build()
-                val response: Response = client.newCall(request).execute()
-
-                if (response.isSuccessful) {
-                    response.body?.byteStream().use {
-                        // Need to figure out a better way to control the directories Map.
-                        input -> File(Settings.directories["download"]!![1]).outputStream().use {
-                            output -> input!!.copyTo(output)
-                        }
+            if (response.isSuccessful) {
+                response.body?.byteStream().use {
+                    // Need to figure out a better way to control the directories Map.
+                    input -> File(Settings.directories["download"]!![1]).outputStream().use {
+                        output -> input!!.copyTo(output)
                     }
                 }
             }
+        }
 
-            else -> {
-                println("Code your else fool.")
-            }
+        when (version.rawVersion) {
+            // The latest version is always the first value of luaVersionFiles.
+            "latest" -> fetchFileFromFtp(LuaVersions.luaVersionFiles.firstNotNullOf { it.value })
+            else -> LuaVersions.luaVersionFiles[version.delimitedVersion]?.let { fetchFileFromFtp(it) } ?: println("Version does not exist.")
         }
     }
 
