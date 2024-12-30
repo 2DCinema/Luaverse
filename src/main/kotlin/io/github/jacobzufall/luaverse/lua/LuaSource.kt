@@ -17,6 +17,7 @@ import io.github.jacobzufall.luaverse.Settings
 class LuaSource {
     fun download(version: String) {
         when (version.lowercase()) {
+            // This allows the user to specify no arguments for version and download the latest one.
             "latest" -> {
                 val latestSourceFileUrl: String = LuaVersions.luaVersionFiles.firstNotNullOf { it.value }
 
@@ -32,6 +33,10 @@ class LuaSource {
                         }
                     }
                 }
+            }
+
+            else -> {
+                println("Code your else fool.")
             }
         }
     }
