@@ -14,7 +14,7 @@ import java.io.FileOutputStream
 import io.github.jacobzufall.luaverse.Settings
 import io.github.jacobzufall.luaverse.utility.VersionString
 
-class LuaSource {
+object LuaSource {
     fun download(version: VersionString) {
         fun fetchFileFromFtp(url: String) {
             val client: OkHttpClient = OkHttpClient()
@@ -22,10 +22,11 @@ class LuaSource {
             val response: Response = client.newCall(request).execute()
 
             if (response.isSuccessful) {
-                response.body?.byteStream().use {
-                    // Need to figure out a better way to control the directories Map.
-                    input -> File(Settings.directories["download"]!![1]).outputStream().use {
-                        output -> input!!.copyTo(output)
+                val outputFile: File = File(Settings.directories["download"]!![1], "lua-${version.rawVersion}.tar.gz")
+
+                response.body?.byteStream().use { input ->
+                    outputFile.outputStream().use { output ->
+                        input?.copyTo(output)
                     }
                 }
             }

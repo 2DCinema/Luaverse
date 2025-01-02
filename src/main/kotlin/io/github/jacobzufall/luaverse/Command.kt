@@ -9,8 +9,10 @@ import java.awt.Desktop
 import java.io.File
 
 import io.github.jacobzufall.luaverse.lua.LuaVersions
+import io.github.jacobzufall.luaverse.lua.LuaSource
 import io.github.jacobzufall.luaverse.systemInteraction.LuaSourceOld // Will be removed eventually.
 import io.github.jacobzufall.luaverse.systemInteraction.PathEnvironment
+import io.github.jacobzufall.luaverse.utility.VersionString
 
 class Command(command: List<String>) {
     // Map commands here.
@@ -36,13 +38,18 @@ class Command(command: List<String>) {
         if (command.size == 1) return invalidateCommand(command)
 
         when (command[1].lowercase()) {
-            "getluaversions" -> {
+            "versions" -> {
                 LuaVersions.getAvailableLuaVersions()
+            }
+
+            "download" -> {
+                // I'll add safety later.
+                val version: VersionString = VersionString(command[2])
+                LuaSource.download(version)
             }
         }
 
         return true
-
     }
 
     /**
