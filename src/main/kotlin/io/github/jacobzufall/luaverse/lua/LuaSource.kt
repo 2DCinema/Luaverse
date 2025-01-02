@@ -39,6 +39,10 @@ object LuaSource {
         }
     }
 
+    /*
+    TODO: This function should target the /src/ folder. I'm not sure if specific cases will need to be accounted for
+     based on what version of Lua is being downloaded.
+    */
     fun extract(version: String) {
         // Checks if a version of the binary is already downloaded.
         var compressedSourceFile: File = File("${Settings.directories["download"]!![1]}\\lua-")
