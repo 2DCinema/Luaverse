@@ -7,6 +7,7 @@ import kotlin.io.path.isDirectory
 
 object Settings {
     private val appDataPath: Path = Paths.get(System.getenv("APPDATA")).parent
+    var luaverseDir: String = "$appDataPath\\Local\\Programs\\Lua"
 
     /*
     Each map index is a unique nickname of the directory. Each map value is a list containing [0] a description of
@@ -17,17 +18,22 @@ object Settings {
     var directories: Map<String, List<String>> = mapOf(
         "build" to mutableListOf(
             "The directory where Lua is built to.",
-            "$appDataPath\\Local\\Programs\\Lua"
+            "$luaverseDir\\Lua"
         ),
 
         "backup" to mutableListOf(
             "The directory where backups of the Path environment variable are stored.",
-            "$appDataPath\\Roaming\\Luaverse\\Backups"
+            "$luaverseDir\\Backups"
         ),
 
         "download" to mutableListOf(
             "The directory where Lua's source code is downloaded to prior to being built.",
-            "$appDataPath\\Roaming\\Luaverse\\Source"
+            "$luaverseDir\\Source"
+        ),
+
+        "extract" to mutableListOf(
+            "The directory where Lua's source code is extracted to.",
+            "$luaverseDir\\Extracted"
         )
     )
 

@@ -8,7 +8,7 @@ import it.skrape.fetcher.skrape
 /**
  * A singleton object that handles interacting with lua.org to obtain different versions of Lua.
  */
-object LuaVersions {
+object LuaVersionHandler {
     // I think this should be private eventually?
     var luaVersionFiles: MutableMap<String, String> = mutableMapOf()
 

@@ -30,11 +30,7 @@ class VersionString(version: String) {
         rawVersion = formatVersion("")
     }
 
-    private fun formatVersion(delimiter: String): String {
-        return if (isLatest) {
-            "latest"
-        } else {
-            versionNumbers.joinToString(delimiter)
-        }
-    }
+    private fun formatVersion(delimiter: String): String = if (isLatest) "latest" else versionNumbers.joinToString(delimiter)
+
+    fun withDelimiter(delimiter: String): String = versionNumbers.joinToString(delimiter)
 }

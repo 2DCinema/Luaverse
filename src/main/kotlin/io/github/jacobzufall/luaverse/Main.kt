@@ -17,7 +17,7 @@ fun main() {
             Command(input.split(" ").toList())
 
         } else {
-            println("Usage: cliApp <command> <args>")
+            println("Usage: luaverse <command> <args>")
         }
     }
 

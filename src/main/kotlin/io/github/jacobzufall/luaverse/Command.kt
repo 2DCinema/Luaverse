@@ -8,8 +8,8 @@ package io.github.jacobzufall.luaverse
 import java.awt.Desktop
 import java.io.File
 
-import io.github.jacobzufall.luaverse.lua.LuaVersions
-import io.github.jacobzufall.luaverse.lua.LuaSource
+import io.github.jacobzufall.luaverse.lua.LuaVersionHandler
+import io.github.jacobzufall.luaverse.lua.LuaSourceCode
 import io.github.jacobzufall.luaverse.systemInteraction.LuaSourceOld // Will be removed eventually.
 import io.github.jacobzufall.luaverse.systemInteraction.PathEnvironment
 import io.github.jacobzufall.luaverse.utility.VersionString
@@ -39,13 +39,12 @@ class Command(command: List<String>) {
 
         when (command[1].lowercase()) {
             "versions" -> {
-                LuaVersions.getAvailableLuaVersions()
+                LuaVersionHandler.getAvailableLuaVersions()
             }
 
             "download" -> {
                 // I'll add safety later.
                 val version: VersionString = VersionString(command[2])
-                LuaSource.download(version)
             }
         }
 
@@ -143,7 +142,7 @@ class Command(command: List<String>) {
                 The latest version is always at the top of the website, so we can just grab the first value from
                 the map.
                 */
-                println(LuaVersions.luaVersionFiles.firstNotNullOfOrNull { it })
+                println(LuaVersionHandler.luaVersionFiles.firstNotNullOfOrNull { it })
                 return true
             }
 
@@ -163,7 +162,7 @@ class Command(command: List<String>) {
             // If the command is simply "dir", the program will list every directory used.
             1 -> {
                 print("\n")
-                println("[[[DIRECTORY LISTING]]]")
+                println("--- DIRECTORY LISTING ---")
                 println("You can open any of the following directories by typing in \"dir <name>\".`")
                 print("\n")
 
@@ -174,7 +173,7 @@ class Command(command: List<String>) {
                     print("\n")
                 }
 
-                println("[[[END OF LISTING]]]")
+                println("--- END OF LISTING ---")
                 print("\n")
 
                 return true
