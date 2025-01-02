@@ -1,4 +1,4 @@
-package io.github.jacobzufall.luaverse.system_interaction
+package io.github.jacobzufall.luaverse.systemInteraction
 
 import java.io.File
 
