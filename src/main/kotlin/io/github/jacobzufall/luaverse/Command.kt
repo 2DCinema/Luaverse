@@ -5,14 +5,14 @@ returned is unused, but I am implementing it in case it is needed in the future.
 
 package io.github.jacobzufall.luaverse
 
-import java.awt.Desktop
-import java.io.File
-
-import io.github.jacobzufall.luaverse.lua.LuaVersionHandler
 import io.github.jacobzufall.luaverse.lua.LuaSourceCode
-import io.github.jacobzufall.luaverse.systemInteraction.LuaSourceOld // Will be removed eventually.
+import io.github.jacobzufall.luaverse.lua.LuaVersionHandler
 import io.github.jacobzufall.luaverse.systemInteraction.PathEnvironment
 import io.github.jacobzufall.luaverse.utility.VersionString
+
+import java.awt.Desktop
+import java.io.File
+import java.nio.file.Path
 
 class Command(command: List<String>) {
     // Map commands here.
@@ -111,7 +111,7 @@ class Command(command: List<String>) {
                 when (command.size) {
                     2 -> {
                         println("Please specify the path to the backup. Backups can be found by invoking the \"dir backup\" " +
-                                "command or navigating to ${Settings.directories["backup"]?.get(1)}.")
+                                "command or navigating to ${Settings.directories["backup"]?.get("dir")}.")
                         return false
                     }
 
@@ -146,7 +146,7 @@ class Command(command: List<String>) {
                 return true
             }
 
-            2 -> return LuaSourceOld(command[1]).oldBuild()
+            2 -> return true // Add this later
 
             else -> return invalidateCommand(command)
         }
@@ -168,8 +168,8 @@ class Command(command: List<String>) {
 
                 for ((dirName, dirInfo) in Settings.directories) {
                     println(dirName)
-                    println(dirInfo[0])
-                    println(dirInfo[1])
+                    println(dirInfo["desc"])
+                    println(dirInfo["dir"])
                     print("\n")
                 }
 
@@ -183,10 +183,11 @@ class Command(command: List<String>) {
             2 -> {
                 for ((dirName, dirInfo) in Settings.directories) {
                     if (command[1] == dirName.lowercase()) {
-                        val directory = File(dirInfo[1])
+                        val directory: Path = dirInfo["dir"] as Path
+                        val dirAsFile: File = directory.toFile()
 
-                        if (directory.exists() && directory.isDirectory) {
-                            Desktop.getDesktop().open(directory)
+                        if (dirAsFile.exists() && dirAsFile.isDirectory) {
+                            Desktop.getDesktop().open(dirAsFile)
                             return true
                         }
                     }

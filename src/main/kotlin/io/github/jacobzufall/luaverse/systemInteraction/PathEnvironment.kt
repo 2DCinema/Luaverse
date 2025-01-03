@@ -1,12 +1,11 @@
 package io.github.jacobzufall.luaverse.systemInteraction
 
+import io.github.jacobzufall.luaverse.Settings
+
 import java.io.File
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-
-import io.github.jacobzufall.luaverse.Settings
-
 
 class PathEnvironment {
     private val regKey: String = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
@@ -68,7 +67,7 @@ class PathEnvironment {
      * @return If the backup was completed successfully or not.
      */
     fun backup(): Boolean {
-        val file: File = File("${Settings.directories["backup"]?.get(1)}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
+        val file: File = File("${Settings.directories["backup"]!!["dir"].toString()}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
         val prettyJson: Json = Json { prettyPrint = true }
         file.writeText(prettyJson.encodeToString(pathVarValues))
 
@@ -77,7 +76,7 @@ class PathEnvironment {
             return true
 
         } else {
-            println("Failed to create backup file in ${Settings.directories["backup"]?.get(1)}.")
+            println("Failed to create backup file in ${Settings.directories["backup"]!!["dir"]}.")
             return false
         }
     }
@@ -94,7 +93,7 @@ class PathEnvironment {
         println("Creating redundant backup.")
         backup()
         
-        val fileToRestore: File = File("${Settings.directories["backup"]?.get(1)}\\$backupFile")
+        val fileToRestore: File = File("${Settings.directories["backup"]!!["dir"]}\\$backupFile")
         
         if (fileToRestore.exists()) {
             val jsonString: String = fileToRestore.readText()
@@ -151,7 +150,7 @@ class PathEnvironment {
             return true
 
         } else {
-            println("Could not locate $backupFile in ${Settings.directories["backup"]?.get(1)}.")
+            println("Could not locate $backupFile in ${Settings.directories["backup"]!!["dir"]}.")
             return false
         }
     }
@@ -196,7 +195,7 @@ class PathEnvironment {
     fun addVersion(version: String): Boolean {
         // Converts x.x.x into xxx.
         val cleanVersion: String = version.split(".").joinToString("")
-        val binPath: String = "${Settings.directories["build"]?.get(1)}\\Lua$cleanVersion\\bin"
+        val binPath: String = "${Settings.directories["build"]!!["dir"]}\\Lua$cleanVersion\\bin"
 
         if (!findVersion(cleanVersion)) {
             return appendToSystemPath(binPath) == 0
@@ -208,7 +207,7 @@ class PathEnvironment {
     fun removeVersion(version: String) {
         // Versions are usually displayed as "x.x.x" when downloaded, but they are installed as "xxx".
         val cleanVersion: String = version.split(".").joinToString("")
-        val binPath: String = "${Settings.directories["build"]?.get(1)}\\Lua$cleanVersion\\bin"
+        val binPath: String = "${Settings.directories["build"]!!["dir"]}\\Lua$cleanVersion\\bin"
         val newPathValues: MutableList<String> = pathVarValues.toMutableList()
 
         // Is this for loop necessary? Or can kotlin.collections.MutableList.remove() stand on its own?

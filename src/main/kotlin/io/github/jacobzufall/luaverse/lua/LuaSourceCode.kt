@@ -1,13 +1,13 @@
 package io.github.jacobzufall.luaverse.lua
 
+import io.github.jacobzufall.luaverse.Settings
+import io.github.jacobzufall.luaverse.utility.VersionString
+
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 
 import java.io.File
-
-import io.github.jacobzufall.luaverse.Settings
-import io.github.jacobzufall.luaverse.utility.VersionString
 
 /**
  * Handles downloading, extracting, and building Lua.
@@ -36,7 +36,7 @@ class LuaSourceCode(version: VersionString) {
         val response: Response = client.newCall(request).execute()
 
         if (response.isSuccessful) {
-            val outputFile: File = File(Settings.directories["download"]!![1], "lua-${version.rawVersion}.tar.gz")
+            val outputFile: File = File(Settings.directories["download"]!!["dir"].toString(), "lua-${version.rawVersion}.tar.gz")
 
             response.body?.byteStream().use { input ->
                 outputFile.outputStream().use { output ->

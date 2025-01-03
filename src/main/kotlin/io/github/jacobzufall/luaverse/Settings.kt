@@ -3,41 +3,42 @@ package io.github.jacobzufall.luaverse
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+
 import kotlin.io.path.isDirectory
 
 object Settings {
     private val appDataPath: Path = Paths.get(System.getenv("APPDATA")).parent
-    var luaverseDir: String = "$appDataPath\\Local\\Programs\\Lua"
+    var luaverseDir: Path = appDataPath.resolve("Local/Programs/Lua")
 
     /*
     Each map index is a unique nickname of the directory. Each map value is a list containing [0] a description of
     the directory, and [1] the directory itself, as a String.
-    TODO: Make this variable a property?
-    TODO: Should this be a Map of Maps instead of a Map of Lists?
+
+    TODO: Figure out some form of type safety for the inner MutableMap. "Any" doesn't exactly cut it for me.
     */
-    var directories: Map<String, List<String>> = mapOf(
-        "build" to mutableListOf(
-            "The directory where Lua is built to.",
-            "$luaverseDir\\Lua"
+    val directories: Map<String, MutableMap<String, Any>> = mapOf(
+        "build" to mutableMapOf(
+            "desc" to "The directory where Lua is built to.",
+            "dir" to luaverseDir.resolve("Lua")
         ),
 
-        "backup" to mutableListOf(
-            "The directory where backups of the Path environment variable are stored.",
-            "$luaverseDir\\Backups"
+        "backup" to mutableMapOf(
+            "desc" to "The directory where backups of the Path environment variable are stored.",
+            "dir" to luaverseDir.resolve("Backups")
         ),
 
-        "download" to mutableListOf(
-            "The directory where Lua's source code is downloaded to prior to being built.",
-            "$luaverseDir\\Source"
+        "download" to mutableMapOf(
+            "desc" to "The directory where Lua's source code is downloaded to prior to being extracted and built.",
+            "dir" to luaverseDir.resolve("Source")
         ),
 
-        "extract" to mutableListOf(
-            "The directory where Lua's source code is extracted to.",
-            "$luaverseDir\\Extracted"
+        "extract" to mutableMapOf(
+            "desc" to "The directory where Lua's source code is extracted to.",
+            "dir" to luaverseDir.resolve("Extracted")
         )
     )
 
-    init { for ((_, path) in directories) validateDirectory(Paths.get(path[1])) }
+    init { for ((_, dirInfo) in directories) validateDirectory(dirInfo["dir"] as Path) }
 
     /**
      * Checks if a directory exists and attempts to create it if it doesn't.
