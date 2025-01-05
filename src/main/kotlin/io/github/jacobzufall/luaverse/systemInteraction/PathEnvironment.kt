@@ -7,6 +7,9 @@ import java.io.File
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+/**
+ * Handles interaction with the Windows Registry for the purpose of modifying the path environment variable.
+ */
 class PathEnvironment {
     private val regKey: String = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"
     private val envVar: String = "Path"
@@ -28,6 +31,11 @@ class PathEnvironment {
             return pathValues.toList()
         }
 
+    /**
+     * Appends a new value to the path variable.
+     * @param[textToAppend] the new value to be appended.
+     * @return the exit value of the process represented by this Process object. By convention, the value 0 indicates normal termination.
+     */
     private fun appendToSystemPath(textToAppend: String): Int {
         /**
          * Checks if the given String ends with a semicolon, and adds it to the end if it does not.
@@ -53,6 +61,11 @@ class PathEnvironment {
         return process.waitFor()
     }
 
+    /**
+     * Sets the path variable to a new value.
+     * @param[newPath] the new value to change the path to. This must be properly formatted (delineated by semicolons, usually).
+     * @return the exit value of the process represented by this Process object. By convention, the value 0 indicates normal termination.
+     */
     private fun overrideSystemPath(newPath: String): Int {
         val process: Process = ProcessBuilder("reg", "add", regKey, "/v",
             envVar, "/t", "REG_EXPAND_SZ", "/d", newPath,
@@ -64,7 +77,7 @@ class PathEnvironment {
      * Creates a backup of the current Path system environment variable and stores it in a JSON file. This works as a
      * fail-safe in case something goes wrong so that a user can revert any unwanted changes. Ideally, this function
      * should be run before any changes are made.
-     * @return If the backup was completed successfully or not.
+     * @return if the backup was completed successfully or not.
      */
     fun backup(): Boolean {
         val file: File = File("${Settings.directories["backup"]!!["dir"].toString()}\\luaverse_path-backup_${System.currentTimeMillis()}.json")
@@ -83,10 +96,10 @@ class PathEnvironment {
 
     /**
      * Restores a backup created by backup().
-     * @param[backupFile] The file to restore, created by backup().
-     * @param[hardRestore] If the environment variable should be restored EXACTLY as it was. If not, the missing values
+     * @param[backupFile] the file to restore, created by backup().
+     * @param[hardRestore] if the environment variable should be restored EXACTLY as it was. If not, the missing values
      * will be simply added.
-     * @return If the restore was completed successfully or not.
+     * @return if the restore was completed successfully or not.
      */
     fun restore(backupFile: String, hardRestore: Boolean = false): Boolean {
         // Extra backup, in case someone restores the wrong file.
@@ -171,8 +184,8 @@ class PathEnvironment {
     */
     /**
      * Checks if the given version of Lua is already included in the path or not.
-     * @param[version] The version of Lua to look for.
-     * @return If the specified version of Lua is included already or not.
+     * @param[version] the version of Lua to look for.
+     * @return if the specified version of Lua is included already or not.
      */
     private fun findVersion(version: String): Boolean {
         for (pathVariable in pathVarValues) {
@@ -189,8 +202,8 @@ class PathEnvironment {
     /**
      * Tries to include the given Lua version in the system Path. Note that this method does not build Lua, and should
      * only be called after building Lua.
-     * @param[version] The version of Lua to add to the path.
-     * @return If the version was added to the Path or not.
+     * @param[version] the version of Lua to add to the path.
+     * @return if the version was added to the Path or not.
      */
     fun addVersion(version: String): Boolean {
         // Converts x.x.x into xxx.

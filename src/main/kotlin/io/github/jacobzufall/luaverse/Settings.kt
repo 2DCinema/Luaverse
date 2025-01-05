@@ -6,6 +6,9 @@ import java.nio.file.Paths
 
 import kotlin.io.path.isDirectory
 
+/**
+ * Global settings objects for this CLI.
+ */
 object Settings {
     private val appDataPath: Path = Paths.get(System.getenv("APPDATA")).parent
     var luaverseDir: Path = appDataPath.resolve("Local/Programs/Lua")
