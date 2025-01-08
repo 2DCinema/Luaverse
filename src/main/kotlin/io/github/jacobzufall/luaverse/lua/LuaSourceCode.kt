@@ -27,9 +27,16 @@ class LuaSourceCode(version: VersionString) {
         }
 
         // Extracts the files downloaded in the previous step.
+        if (sourceFile != null) {
+            println("If you're seeing this is means Jacob didn't write the code to extract the file yet.")
+
+        } else {
+            println("sourceFile is null or something, idk lol")
+        }
     }
 
     // TODO: Add handling for multiple downloads.
+    // I forgot what I meant by the TODO above...
     private fun fetchFileFromFtp(version: VersionString): File? {
         val client: OkHttpClient = OkHttpClient()
         val request: Request =  Request.Builder().url("https://www.lua.org/ftp/lua-${version.withDelimiter(".")}.tar.gz").build()
@@ -47,6 +54,10 @@ class LuaSourceCode(version: VersionString) {
             return outputFile
         }
 
+        /*
+        I'm not sure if this is the best approach. Would it be better to return "response"? Or, would it be better to
+        raise an exception?
+        */
         return null
     }
 }

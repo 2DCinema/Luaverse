@@ -41,6 +41,7 @@ object Settings {
         )
     )
 
+    // Essentially validates all the directories listed above.
     init { for ((_, dirInfo) in directories) validateDirectory(dirInfo["dir"] as Path) }
 
     /**

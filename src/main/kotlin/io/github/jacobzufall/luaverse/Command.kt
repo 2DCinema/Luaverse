@@ -142,7 +142,25 @@ class Command(command: List<String>) {
                 The latest version is always at the top of the website, so we can just grab the first value from
                 the map.
                 */
-                println(LuaVersionHandler.luaVersionFiles.firstNotNullOfOrNull { it })
+                println(LuaVersionHandler.luaVersionFiles.firstNotNullOfOrNull { it.key }?.let { it::class })
+
+                // I guess this may be null if the website can't be reached?
+                val latestVersion: String? = LuaVersionHandler.luaVersionFiles.firstNotNullOfOrNull { it.key }
+
+                if (latestVersion != null) {
+                    /*
+                    After initialization, this constant will basically have two File objects. One directs to the
+                    downloaded files and the other to the extracted files.
+                    */
+                    val sourceCode: LuaSourceCode = LuaSourceCode(VersionString(latestVersion))
+
+                } else {
+                    // I guess this is good enough, for now.
+                    println("The latest version of Lua could not be determined. Please specify the version you wish to" +
+                            "build explicitly.")
+                    return false
+                }
+
                 return true
             }
 
